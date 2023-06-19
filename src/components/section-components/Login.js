@@ -157,7 +157,7 @@ const Login = () => {
               <h1>Login</h1>
               <input
                 style={{ display: 'block', marginTop: '1vh', marginBottom: '1vh', padding: '15px', width: '300px',backgroundColor: "whitesmoke" , border: "none"}}
-                id="email"
+                id="loginemail"
                 autoComplete='off'
                 name='email' defaultValue={user.email} onChange={handleChange} placeholder='Enter your email'
                 required
@@ -247,7 +247,8 @@ const Login = () => {
                 
               <input
                  style={{ display: 'block', marginTop: '1vh', marginBottom: '1vh', padding: '15px', width: '300px',backgroundColor: "whitesmoke" , border: "none"}}
-                      type="email"
+                id='email'     
+                type="email"
                 name="email"
                 placeholder='Email'
                       defaultValue={user.email}
