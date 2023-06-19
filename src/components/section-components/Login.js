@@ -105,13 +105,14 @@ const Login = () => {
     const login = () => {
     axios.post("http://localhost:5000/login", user)
       .then(res => {
-        toast.success(res.data.message); // Display success notification
+       alert(res.data.message); // Display success notification
         setIsLoggedIn(true);
         handleClose();
         // Set login status to true after successful login
       })
       .catch(error => {
-        toast.error(error.message); // Display error notification
+      alert(error.response.data.message); // Display error notification
+    
       });
   };
   const logout = () => {
