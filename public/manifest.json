@@ -1,0 +1,49 @@
+{
+  "short_name": "DelhiByCycle",
+  "name": "DelhiByCycle- India's First Cycle Tour Company",
+  "icons": [
+    {
+      "src": "https://delhibycycle.s3.ap-south-1.amazonaws.com/48-logo-delhi-by-cycle.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "https://delhibycycle.s3.ap-south-1.amazonaws.com/96-logo-delhi-by-cycle.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "https://delhibycycle.s3.ap-south-1.amazonaws.com/144-logo-delhi-by-cycle.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },
+    {
+      "src": "https://delhibycycle.s3.ap-south-1.amazonaws.com/192-logo-delhi-by-cycle.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://delhibycycle.s3.ap-south-1.amazonaws.com/256-logo-delhi-by-cycle.png",
+      "type": "image/png",
+      "sizes": "256x256"
+    },
+    {
+      "src": "https://delhibycycle.s3.ap-south-1.amazonaws.com/384-logo-delhi-by-cycle.png",
+      "type": "image/png",
+      "sizes": "384x384"
+    },
+    {
+      "src": "https://delhibycycle.s3.ap-south-1.amazonaws.com/512-logo-delhi-by-cycle.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#f3941e",
+  "background_color": "#ffffff",
+  "description": "Come Explore India With DBC",
+  "dir": "ltr",
+  "lang": "en-US"
+}
