@@ -110,8 +110,8 @@ const Login = () => {
         handleClose();
         // Set login status to true after successful login
       })
-      .catch(error => {
-      alert(error.message); // Display error notification
+      .catch(err => {
+      alert(err.message); // Display error notification
     
       });
   };
