@@ -97,10 +97,14 @@ const Login = () => {
   
       // Create a new user object with the hashed password
       const newUser = { ...user, password: hashedPassword };
-      axios.post('http://localhost:5000/register', newUser).then((res) => {
-      console.log(res);
-      alert('Register Successful');
-      handleClose1();
+      axios.post('http://localhost:5000/register', newUser)
+        .then((res) => {
+        const message = res.data.message;
+          alert(message); //Display error or success notification
+          if (message === "Successfully Registered") {
+            
+            handleClose1();
+          }
       // Close the page
     });
     } else if (password.length < 8) {
