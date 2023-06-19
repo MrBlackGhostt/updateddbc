@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
@@ -65,6 +65,14 @@ const Login = () => {
   };
 
   const handleRegisterClose = () => setRegisterOpen(false);
+  
+  useEffect(() => {
+    // Check login status on component mount
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (isLoggedIn === 'true') {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const register = (e) => {
     e.preventDefault();
@@ -102,29 +110,51 @@ const Login = () => {
       console.log(user);
     }
   };
-    const login = () => {
-    axios.post("http://localhost:5000/login", user)
-      .then(res => {
-       alert(res.data.message); // Display success notification
-        setIsLoggedIn(true);
-        handleClose();
-        // Set login status to true after successful login
+  const login = () => {
+      // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(user.email)) {
+    alert('Please enter a valid email');
+    return;
+  }
+  try {
+    axios
+      .post("http://localhost:5000/login", user)
+      .then((res) => {
+        const message = res.data.message;
+        alert(message); // Display success or error notification
+        if (message === "Successfully Logged in") {
+          setIsLoggedIn(true);
+          localStorage.setItem('isLoggedIn', 'true'); 
+          handleClose();
+          // Set login status to true and close the login modal
+        }
       })
-      .catch(err => {
-      alert(err.message); // Display error notification
-    
+      .catch((err) => {
+        alert(err.message); // Display error notification
       });
-  };
+  } catch (error) {
+    console.error(error);
+  }
+};
   const logout = () => {
     setIsLoggedIn(false); // Set login status to false
+    localStorage.setItem('isLoggedIn', 'false'); 
   };
+  
   return (
     <div>
-       {isLoggedIn ? ( // Display logout button if logged in
-        <button className="atn btn-yellow" onClick={logout} style={{ width: '7vw' , backgroundColor: "whitesmoke", color: "black"}}>
+      {isLoggedIn ? (
+        // Display logout button if logged in
+        <button
+          className="atn btn-yellow"
+          onClick={logout}
+          style={{ width: '7vw', backgroundColor: 'whitesmoke', color: 'black' }}
+        >
           Logout
         </button>
-      ) : ( // Display login button if not logged in
+      ) : (
+        // Display login button if not logged in
         <button className="atn btn-yellow" onClick={handleOpen} style={{ width: '7vw' }}>
           Login
         </button>
