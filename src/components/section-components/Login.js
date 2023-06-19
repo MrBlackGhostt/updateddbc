@@ -111,7 +111,7 @@ const Login = () => {
         // Set login status to true after successful login
       })
       .catch(error => {
-      alert(error.data.message); // Display error notification
+      alert(error.message); // Display error notification
     
       });
   };
