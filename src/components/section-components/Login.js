@@ -5,7 +5,8 @@ import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import axios from 'axios';
 import { SHA256 } from 'crypto-js';
-
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 const style = {
   position: 'absolute',
@@ -28,17 +29,39 @@ const style1 = {
   bgcolor: 'background.paper',
   borderRadius: '2%',
   boxShadow: 30,
-  p: 4,
+  p: 2,
 };
 
-const Login = () => {
+const Auth = () => {
+  const [user1, setUser1] = useState({
+    email: '',
+    password: '',
+  });
+
   const [user, setUser] = useState({
     name: '',
     email: '',
     password: '',
     country: '',
-    whatsApp: '',
+    mobileNumber: '',
   });
+
+  const [loginErrors, setLoginErrors] = useState({});
+  const [registerErrors, setRegisterErrors] = useState({});
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [open, setOpen] = React.useState(false);
+  const [registerOpen, setRegisterOpen] = React.useState(false);
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+  const [showSuccessNotification1, setShowSuccessNotification1] = useState(false);
+
+
+  const handleChange1 = (e) => {
+    const { name, value } = e.target;
+    setUser1({
+      ...user1,
+      [name]: value,
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,9 +70,6 @@ const Login = () => {
       [name]: value,
     });
   };
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
-  const [open, setOpen] = React.useState(false);
-  const [registerOpen, setRegisterOpen] = React.useState(false);
 
   const handleOpen = () => {
     setOpen(true);
@@ -65,7 +85,8 @@ const Login = () => {
   };
 
   const handleRegisterClose = () => setRegisterOpen(false);
-  
+ 
+
   useEffect(() => {
     // Check login status on component mount
     const isLoggedIn = localStorage.getItem('isLoggedIn');
@@ -74,92 +95,140 @@ const Login = () => {
     }
   }, []);
 
+  const handleSuccessNotificationClose = () => {
+    setShowSuccessNotification(false);
+  };
+  const handleSuccessNotificationClose1 = () => {
+    setShowSuccessNotification1(false);
+  };
+  
+
   const register = (e) => {
     e.preventDefault();
-    const { name, email, password, country, whatsApp, confirmPassword } = user;
-    if (
-      name &&
-      email &&
-      country &&
-      whatsApp &&
-      password &&
-      (password.length >= 8) && // Check if password length is greater than or equal to 8
-      (password === confirmPassword)
-    ) {
-         // Validate email format
-         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-         if (!emailRegex.test(email)) {
-           alert('Please enter a valid email');
-           return;
-         }
-      // Hash the password
-      const hashedPassword = SHA256(password).toString();
-  
-      // Create a new user object with the hashed password
-      const newUser = { ...user, password: hashedPassword };
-      axios.post('http://localhost:5000/register', newUser)
+    const { name, email, password, country, mobileNumber, confirmPassword } = user;
+    const errors = {};
+
+    if (!name) {
+      errors.name = 'Name is required';
+    }
+    if (!email) {
+      errors.email = 'Email is required';
+    } else {
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        errors.email = 'Please enter a valid email';
+      }
+    }
+    if (!password) {
+      errors.password = 'Password is required';
+    } else if (password.length < 8) {
+      errors.password = 'Password must be at least 8 characters';
+    }
+    if (!confirmPassword) {
+      errors.confirmPassword = 'Confirm Password is required';
+    } else if (password !== confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
+    if (!country) {
+      errors.country = 'Country is required';
+    }
+    if (!mobileNumber) {
+      errors.mobileNumber = 'Mobile Number is required';
+    }
+
+    if (Object.keys(errors).length === 0) {
+      axios
+        .post('http://localhost:5000/auth/signup', user)
         .then((res) => {
-        const message = res.data.message;
-          alert(message); //Display error or success notification
-          if (message === "Successfully Registered") {
-            
+          const message = res.data.message;
+          // alert('Successfully Registered!'); // Display error or success notification
+          if (message !== 'Something Wrong WIth Email or Password') {
+            setShowSuccessNotification1(true);
             handleClose1();
           }
-      // Close the page
-    });
-    } else if (password.length < 8) {
-      alert('Password must be greater than 8 digits');
+          // Close the page
+        })
+        .catch((err) => {
+          console.error(err);
+          alert('Failed to register');
+        });
     } else {
-      alert('Invalid Inputs');
-      console.log(user);
+      setRegisterErrors(errors);
     }
   };
+
   const login = () => {
+    const { email, password } = user1;
+    const errors = {};
+
+    if (!email) {
+      errors.email = 'Email is required';
+    } else {
       // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(user.email)) {
-    alert('Please enter a valid email');
-    return;
-  }
-  try {
-    axios
-      .post("http://localhost:5000/login", user)
-      .then((res) => {
-        const message = res.data.message;
-        alert(message); // Display success or error notification
-        if (message === "Successfully Logged in") {
-          setIsLoggedIn(true);
-          localStorage.setItem('isLoggedIn', 'true'); 
-          handleClose();
-          // Set login status to true and close the login modal
-        }
-      })
-      .catch((err) => {
-        alert(err.message); // Display error notification
-      });
-  } catch (error) {
-    console.error(error);
-  }
-};
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        errors.email = 'Please enter a valid email';
+      }
+    }
+    if (!password) {
+      errors.password = 'Password is required';
+    } else if (password.length < 8) {
+      errors.password = 'Password must be at least 8 characters';
+    }
+
+    if (Object.keys(errors).length === 0) {
+      axios
+        .post('http://localhost:5000/auth/signin', user1)
+        .then((res) => {
+          const message = 'Successfully Logged in';
+          // alert(message); // Display success or error notification
+          if (message === 'Successfully Logged in') {
+            setShowSuccessNotification(true);
+            setIsLoggedIn(true);
+            localStorage.setItem('isLoggedIn', 'true');
+            handleClose(); // Set login status to true and close the login modal
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          alert('Failed to login');
+        });
+    } else {
+      setLoginErrors(errors);
+    }
+  };
+
   const logout = () => {
     setIsLoggedIn(false); // Set login status to false
-    localStorage.setItem('isLoggedIn', 'false'); 
+    localStorage.setItem('isLoggedIn', 'false');
   };
-  
+
   return (
     <div>
-      {isLoggedIn ? (
+       <Snackbar open={showSuccessNotification} autoHideDuration={3000} onClose={handleSuccessNotificationClose}>
+  <MuiAlert onClose={handleSuccessNotificationClose} severity="success" sx={{ width: '100%' }}>
+    Successfully Logged in
+  </MuiAlert>
+</Snackbar>
+<Snackbar open={showSuccessNotification1} autoHideDuration={3000} onClose={handleSuccessNotificationClose1}>
+  <MuiAlert onClose={handleSuccessNotificationClose1} severity="success" sx={{ width: '100%' }}>
+    Successfully Registered in
+  </MuiAlert>
+</Snackbar>
+
+      {isLoggedIn ? ( 
         // Display logout button if logged in
         <button
           className="atn btn-yellow"
           onClick={logout}
-          style={{ width: '7vw', backgroundColor: 'whitesmoke', color: 'black' }}
+          style={{ width: '7vw', backgroundColor: 'whitesmoke', color: 'black', cursor: "pointer" }}
         >
           Logout
         </button>
       ) : (
         // Display login button if not logged in
-        <button className="atn btn-yellow" onClick={handleOpen} style={{ width: '7vw' }}>
+        <button className="atn btn-yellow" onClick={handleOpen} style={{ width: '7vw' , cursor: "pointer" }}>
           Login
         </button>
       )}
@@ -180,31 +249,77 @@ const Login = () => {
           <Box sx={style}>
             <div
               style={{
-                justifyContent: 'center',
+             
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '2vh',
                 padding: '2vh',
+                overflow: 'revert',
               }}
             >
+               <a
+          style={{
+            position: 'absolute',
+            top: '0.5rem',
+            right: '0.5rem',
+            border: 'none',
+            background: 'none',
+            fontSize: '1.5rem',
+            cursor: 'pointer',
+          }}
+          onClick={handleClose}
+        >
+          &#10005;
+        </a>
               <h1>Login</h1>
+              <div style={{  padding: '2vh' }}>
               <input
-                style={{ display: 'block', marginTop: '1vh', marginBottom: '1vh', padding: '15px', width: '300px',backgroundColor: "whitesmoke" , border: "none"}}
+                style={{
+                  display: 'block',
+                  marginTop: '1vh',
+                    padding: '15px',
+                    marginBottom:'2.9vh',
+                  width: '300px',
+                  backgroundColor: 'whitesmoke',
+                  border: 'none',
+                }}
                 id="loginemail"
-                autoComplete='off'
-                name='email' defaultValue={user.email} onChange={handleChange} placeholder='Enter your email'
+                autoComplete="off"
+                name="email"
+                defaultValue={user1.email}
+                onChange={handleChange1}
+                placeholder="Enter your email"
                 required
               />
+                
+              {loginErrors.email && <p style={{ color: 'red', marginTop: '-30px', marginBottom: '2vh'}}>{loginErrors.email}</p>}
               <input
-                 style={{ display: 'block', marginTop: '1vh', marginBottom: '1vh', padding: '15px', width: '300px',backgroundColor: "whitesmoke" , border: "none"}}
+                style={{
+                  display: 'block',
+                  marginTop: '1vh',
+                  marginBottom: '2.9vh',
+                  padding: '15px',
+                  width: '300px',
+                  backgroundColor: 'whitesmoke',
+                  border: 'none',
+                }}
                 id="password"
-                autoComplete='off'
-                type="password"name='password' defaultValue={user.password} onChange={handleChange}
+                autoComplete="off"
+                type="password"
+                name="password"
+                defaultValue={user1.password}
+                onChange={handleChange1}
                 placeholder="Password"
                 required
               />
-              <button className="btn btn-yellow" style={{ marginTop: '4vh', textAlign: 'center', width: '300px' }} onClick={login}>
+              {loginErrors.password && <p style={{ color: 'red', marginTop: '-30px', marginBottom: '-15px'}}>{loginErrors.password}</p>}
+              </div>
+              <button
+                className="btn btn-yellow"
+                style={{ marginTop: '0vh', textAlign: 'center', width: '300px' }}
+                onClick={login}
+              >
                 Submit
               </button>
               <span>
@@ -240,63 +355,140 @@ const Login = () => {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '2vh',
-                padding: '2vh',
+                
               }}
             >
+              <a
+                style={{
+            position: 'absolute',
+            top: '0.5rem',
+            right: '0.5rem',
+            border: 'none',
+            background: 'none',
+            fontSize: '1.5rem',
+            cursor: 'pointer',
+          }}
+          onClick={handleClose1 }
+        >
+          &#10005;
+        </a>
               <h1>Register</h1>
-            
-                    <input
-                 style={{ display: 'block', marginTop: '1vh', marginBottom: '1vh', padding: '15px', width: '300px',backgroundColor: "whitesmoke" , border: "none"}}
-                      type="text"
-                  name="name"
-                  placeholder='Name'
-                      defaultValue={user.name}
-                      onChange={handleChange}
-                    />
-        
-                <input
-                 style={{ display: 'block', marginTop: '1vh', marginBottom: '1vh', padding: '15px', width: '300px',backgroundColor: "whitesmoke" , border: "none"}}
-                  name='password'
-                  type="password"
-                  placeholder="Password"
-                  defaultValue={user.password}
-                  onChange={handleChange}
-                  required
-                    />
-                      
-               
-                <input
-                 style={{ display: 'block', marginTop: '1vh', marginBottom: '1vh', padding: '15px', width: '300px',backgroundColor: "whitesmoke" , border: "none"}}
-                  name='confirmPassword'
-                  type="password"
-                  placeholder="Confirm Password"
-                  defaultValue={user.confirmPassword}
-                  onChange={handleChange}
-                  required
-                    />
+              <div style={{  padding: '2vh' }}>
               <input
-                 style={{ display: 'block', marginTop: '1vh', marginBottom: '1vh', padding: '15px', width: '300px',backgroundColor: "whitesmoke" , border: "none"}}
-                
-                type="text" name="country" defaultValue={user.country} placeholder='Country' onChange={handleChange} required />
-                
-              <input
-                 style={{ display: 'block', marginTop: '1vh', marginBottom: '1vh', padding: '15px', width: '300px',backgroundColor: "whitesmoke" , border: "none"}}
-                id='email'     
-                type="email"
-                name="email"
-                placeholder='Email'
-                      defaultValue={user.email}
+                style={{
+                  display: 'block',
+                  marginTop: '1vh',
+                  marginBottom: '2.9vh',
+                  padding: '15px',
+                  width: '300px',
+                  backgroundColor: 'whitesmoke',
+                  border: 'none',
+                }}
+                type="text"
+                name="name"
+                placeholder="Name"
+                defaultValue={user.name}
                 onChange={handleChange}
-               required
-                    />
-                
+              />
+              {registerErrors.name && <p style={{ color: 'red' , marginTop: '-30px',  marginBottom: '20px'}}>{registerErrors.name}</p>}
               <input
-                 style={{ display: 'block', marginTop: '1vh', marginBottom: '1vh', padding: '15px', width: '300px',backgroundColor: "whitesmoke" , border: "none"}}
-                type="text" placeholder="WhatsApp No." name="whatsApp" defaultValue={user.whatsApp} onChange={handleChange} />
-                
-              
-            <button
-              className="btn btn-yellow" style={{ marginTop: '1vh', textAlign: 'center', width: '300px' }}
+                style={{
+                  display: 'block',
+                  marginTop: '1vh',
+                  marginBottom: '2.9vh',
+                  padding: '15px',
+                  width: '300px',
+                  backgroundColor: 'whitesmoke',
+                  border: 'none',
+                }}
+                name="password"
+                type="password"
+                placeholder="Password"
+                defaultValue={user.password}
+                onChange={handleChange}
+                required
+              />
+              {registerErrors.password && <p style={{ color: 'red' , marginTop: '-30px', marginBottom: '20px'}}>{registerErrors.password}</p>}
+              <input
+                style={{
+                  display: 'block',
+                  marginTop: '1vh',
+                  marginBottom: '2.9vh',
+                  padding: '15px',
+                  width: '300px',
+                  backgroundColor: 'whitesmoke',
+                  border: 'none',
+                }}
+                name="confirmPassword"
+                type="password"
+                placeholder="Confirm Password"
+                defaultValue={user.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+              {registerErrors.confirmPassword && (
+                <p style={{ color: 'red', marginTop: '-30px', marginBottom: '20px'}}>{registerErrors.confirmPassword}</p>
+              )}
+              <input
+                style={{
+                  display: 'block',
+                  marginTop: '1vh',
+                  marginBottom: '2.9vh',
+                  padding: '15px',
+                  width: '300px',
+                  backgroundColor: 'whitesmoke',
+                  border: 'none',
+                }}
+                name="email"
+                type="text"
+                placeholder="Email"
+                defaultValue={user.email}
+                onChange={handleChange}
+                required
+              />
+              {registerErrors.email && <p style={{ color: 'red', marginTop: '-30px', marginBottom: '20px'}}>{registerErrors.email}</p>}
+              <input
+                style={{
+                  display: 'block',
+                  marginTop: '1vh',
+                  marginBottom: '2.9vh',
+                  padding: '15px',
+                  width: '300px',
+                  backgroundColor: 'whitesmoke',
+                  border: 'none',
+                }}
+                name="country"
+                type="text"
+                placeholder="Country"
+                defaultValue={user.country}
+                onChange={handleChange}
+                required
+              />
+              {registerErrors.country && <p style={{ color: 'red', marginTop: '-30px',  marginBottom: '20px'}}>{registerErrors.country}</p>}
+              <input
+                style={{
+                  display: 'block',
+                  marginTop: '1vh',
+                  marginBottom: '2.9vh',
+                  padding: '15px',
+                  width: '300px',
+                  backgroundColor: 'whitesmoke',
+                  border: 'none',
+                }}
+                name="mobileNumber"
+                type="text"
+                placeholder="Mobile Number"
+                defaultValue={user.mobileNumber}
+                onChange={handleChange}
+                required
+              />
+              {registerErrors.mobileNumber && (
+                <p style={{ color: 'red', marginTop: '-30px',  marginBottom: '20px'}}>{registerErrors.mobileNumber}</p>
+                )}
+                </div>
+              <button
+                className="btn btn-yellow"
+                style={{ marginTop: '-2vh', textAlign: 'center', width: '300px' }}
                 onClick={register}
               >
                 Submit
@@ -307,12 +499,12 @@ const Login = () => {
                   Login
                 </a>
               </span>
-              </div>
+            </div>
           </Box>
         </Fade>
       </Modal>
-      </div>
+    </div>
   );
 };
 
-export default Login;
+export default Auth;
