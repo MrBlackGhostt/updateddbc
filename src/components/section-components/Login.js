@@ -54,6 +54,7 @@ const Auth = () => {
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
   const [showSuccessNotification1, setShowSuccessNotification1] = useState(false);
   const [showSuccessNotification2, setShowSuccessNotification2] = useState(false);
+  const [showSuccessNotification3, setShowSuccessNotification3] = useState(false);
 
 
   const handleChange1 = (e) => {
@@ -105,6 +106,9 @@ const Auth = () => {
   const handleSuccessNotificationClose2 = () => {
     setShowSuccessNotification2(false);
   };
+  const handleSuccessNotificationClose3 = () => {
+    setShowSuccessNotification3(false);
+  };
 
   const register = (e) => {
     e.preventDefault();
@@ -154,8 +158,8 @@ const Auth = () => {
         })
         .catch((err) => {
           console.error(err);
-          handleClose();
-          setShowSuccessNotification2(true);
+          handleClose1();
+          setShowSuccessNotification3(true);
           // alert('Failed to register');
         });
     } else {
@@ -227,7 +231,13 @@ const Auth = () => {
   <MuiAlert onClose={handleSuccessNotificationClose2} severity="error" sx={{ width: '18%',position:"fixed",top:"10vh", left: '41vw'}}>
     Something wrong Please try again..
   </MuiAlert>
+      </Snackbar>
+      <Snackbar open={showSuccessNotification3} autoHideDuration={3000} onClose={handleSuccessNotificationClose3}>
+  <MuiAlert onClose={handleSuccessNotificationClose3} severity="error" sx={{ width: '18%',position:"fixed",top:"10vh", left: '41vw'}}>
+    Something wrong Please try again..
+  </MuiAlert>
 </Snackbar>
+
 
       {isLoggedIn ? ( 
         // Display logout button if logged in
