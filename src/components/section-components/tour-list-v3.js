@@ -9,7 +9,7 @@ class TourListV3 extends Component {
     this.state = {
       query: "",
       locationFilter: "",
-      priceFilter: null,
+      priceFilter: " ",
     }
   }
 
@@ -22,17 +22,15 @@ class TourListV3 extends Component {
   }
 
   handlePriceFilter = (e) => {
-    const priceFilter = e.target.value
-
-    this.setState({ priceFilter })
-  }
+  this.setState({ priceFilter: e.target.value });
+}
 
   renderContent() {
     const { query, locationFilter, priceFilter } = this.state
 
     const filteredData = this.props.data.filter((singleContent) => {
-      const parsedPriceFilter = parseFloat(priceFilter)
-      const parsedPrice = parseFloat(singleContent.price)
+      const parsedPriceFilter = isNaN(parseFloat(priceFilter)) ? Infinity : parseFloat(priceFilter);
+      const parsedPrice = parseFloat(singleContent.price.replace(/[^0-9.-]+/g, ""));
       const lowercaseQuery = query.toLowerCase()
       const lowercaseLocation = singleContent.location.toLowerCase()
 
@@ -41,7 +39,7 @@ class TourListV3 extends Component {
           singleContent.name === "") &&
         (locationFilter === "" ||
           lowercaseLocation.includes(locationFilter.toLowerCase())) &&
-        (priceFilter === null || parsedPrice <= parsedPriceFilter)
+        (priceFilter === "" || parsedPrice <= parsedPriceFilter)
       )
     })
 
