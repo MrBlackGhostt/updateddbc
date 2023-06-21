@@ -53,6 +53,7 @@ const Auth = () => {
   const [registerOpen, setRegisterOpen] = React.useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
   const [showSuccessNotification1, setShowSuccessNotification1] = useState(false);
+  const [showSuccessNotification2, setShowSuccessNotification2] = useState(false);
 
 
   const handleChange1 = (e) => {
@@ -101,7 +102,9 @@ const Auth = () => {
   const handleSuccessNotificationClose1 = () => {
     setShowSuccessNotification1(false);
   };
-  
+  const handleSuccessNotificationClose2 = () => {
+    setShowSuccessNotification2(false);
+  };
 
   const register = (e) => {
     e.preventDefault();
@@ -151,7 +154,9 @@ const Auth = () => {
         })
         .catch((err) => {
           console.error(err);
-          alert('Failed to register');
+          handleClose();
+          setShowSuccessNotification2(true);
+          // alert('Failed to register');
         });
     } else {
       setRegisterErrors(errors);
@@ -192,7 +197,9 @@ const Auth = () => {
         })
         .catch((err) => {
           console.error(err);
-          alert('Failed to login');
+          setShowSuccessNotification2(true);
+          handleClose();
+          // alert('Failed to login');
         });
     } else {
       setLoginErrors(errors);
@@ -207,13 +214,18 @@ const Auth = () => {
   return (
     <div>
        <Snackbar open={showSuccessNotification} autoHideDuration={3000} onClose={handleSuccessNotificationClose}>
-  <MuiAlert onClose={handleSuccessNotificationClose} severity="success" sx={{ width: '100%' }}>
+  <MuiAlert onClose={handleSuccessNotificationClose} severity="success" sx={{ width: '15%',position:"fixed",top:"10vh", left: '41vw'}}>
     Successfully Logged in
   </MuiAlert>
 </Snackbar>
 <Snackbar open={showSuccessNotification1} autoHideDuration={3000} onClose={handleSuccessNotificationClose1}>
-  <MuiAlert onClose={handleSuccessNotificationClose1} severity="success" sx={{ width: '100%' }}>
+  <MuiAlert onClose={handleSuccessNotificationClose1} severity="success" sx={{ width: '15%',position:"fixed",top:"10vh", left: '41vw'}}>
     Successfully Registered in
+  </MuiAlert>
+      </Snackbar>
+      <Snackbar open={showSuccessNotification2} autoHideDuration={3000} onClose={handleSuccessNotificationClose2}>
+  <MuiAlert onClose={handleSuccessNotificationClose2} severity="error" sx={{ width: '18%',position:"fixed",top:"10vh", left: '41vw'}}>
+    Something wrong Please try again..
   </MuiAlert>
 </Snackbar>
 
