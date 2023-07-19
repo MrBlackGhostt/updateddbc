@@ -9,7 +9,7 @@ class TourListV3 extends Component {
     this.state = {
       query: "",
       locationFilter: "",
-      priceFilter: " ",
+      priceFilter: null,
     }
   }
 
@@ -22,31 +22,49 @@ class TourListV3 extends Component {
   }
 
   handlePriceFilter = (e) => {
-  this.setState({ priceFilter: e.target.value });
-}
+    const priceFilter = e.target.value
+    this.setState({ priceFilter: priceFilter })
+    console.log(priceFilter, "pricefilter")
+  }
+
+  handlePriceClick = (e) => {
+    console.log(e.target.value, "price click")
+  }
 
   renderContent() {
     const { query, locationFilter, priceFilter } = this.state
 
     const filteredData = this.props.data.filter((singleContent) => {
-      const parsedPriceFilter = isNaN(parseFloat(priceFilter)) ? Infinity : parseFloat(priceFilter);
-      const parsedPrice = parseFloat(singleContent.price.replace(/[^0-9.-]+/g, ""));
       const lowercaseQuery = query.toLowerCase()
       const lowercaseLocation = singleContent.location.toLowerCase()
 
       return (
         (singleContent.name.toLowerCase().includes(lowercaseQuery) ||
-          singleContent.name === "") &&
+          lowercaseQuery.name === "") &&
         (locationFilter === "" ||
-          lowercaseLocation.includes(locationFilter.toLowerCase())) &&
-        (priceFilter === "" || parsedPrice <= parsedPriceFilter)
+          lowercaseLocation.includes(locationFilter.toLowerCase()))
       )
     })
 
-    filteredData.sort((a, b) => {
-      return parseInt(b.price) - parseInt(a.price)
-    })
+    console.log(filteredData)
 
+    if (parseInt(priceFilter) == 0) {
+      filteredData.sort((a, b) => {
+        return (
+          parseInt(a.price.replace(",", "")) -
+          parseInt(b.price.replace(",", ""))
+        )
+      })
+    } else if (parseInt(priceFilter) == 1) {
+      filteredData.sort((a, b) => {
+        return (
+          parseInt(b.price.replace(",", "")) -
+          parseInt(a.price.replace(",", ""))
+        )
+      })
+    }
+
+    console.log(filteredData, "after")
     let publicUrl = process.env.PUBLIC_URL + "/"
     return filteredData.map((singleContent) => {
       const {
@@ -96,10 +114,31 @@ class TourListV3 extends Component {
       )
     })
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { query, locationFilter, priceFilter } = this.state
+
+    // Check if any of the state values have changed
+    if (
+      query !== prevState.query ||
+      locationFilter !== prevState.locationFilter ||
+      priceFilter !== prevState.priceFilter
+    ) {
+      // Call the renderContent() method again
+
+      const updatedContent = this.renderContent()
+
+      // Perform any necessary logic with the updatedContent, if needed
+      this.setState({ updatedContent })
+    }
+  }
+
   render() {
     let publicUrl = process.env.PUBLIC_URL + "/"
     let imagealt = "image"
     let { query, locationFilter, priceFilter } = this.state
+
+    const { updatedContent } = this.state
 
     return (
       <div className='tour-list-area pd-top-120 viaje-go-top'>
@@ -107,7 +146,7 @@ class TourListV3 extends Component {
           <div className='row'>
             <div className='col-xl-9 col-lg-8 order-lg-12'>
               <div className='row justify-content-center'>
-                {this.renderContent()}
+                {updatedContent ? updatedContent : this.renderContent()}
               </div>
             </div>
             <div className='col-xl-3 col-lg-4 order-lg-1'>
@@ -129,12 +168,6 @@ class TourListV3 extends Component {
                     </form>
                   </div>
                   <div className='widget-tour-list-meta'>
-                    {/* <div className="single-widget-search-input-title">
-                      <i className="fa fa-dot-circle-o" /> Location
-                    </div> */}
-                    {/* <div className="single-widget-search-input">
-                      <input type="text" placeholder="Tour List Destination" />
-                    </div> */}
                     <div className='single-widget-search-input-title'>
                       <i className='fa fa-plus-circle' /> Location
                     </div>
@@ -144,6 +177,7 @@ class TourListV3 extends Component {
                         value={locationFilter}
                         onChange={this.handleLocationFilter}
                       >
+                        <option value={""}>All Tours</option>
                         <option value={"Old Delhi"}>Old Delhi</option>
                         <option value={"New Delhi"}>New Delhi</option>
                         <option value={"Agra"}>Agra</option>
@@ -151,9 +185,7 @@ class TourListV3 extends Component {
                         <option value={"Goa"}>Goa</option>
                       </select>
                     </div>
-                    {/* <div className="single-widget-search-input">
-                      <input type="text" placeholder="Tour List Destination" />
-                    </div> */}
+
                     <div className='single-widget-search-input-title'>
                       <i className='fa fa-plus-circle' /> Travel Type
                     </div>
@@ -168,16 +200,22 @@ class TourListV3 extends Component {
                     <div className='single-widget-search-input-title'>
                       <i className='fa fa-usd' /> Price Filter
                     </div>
-                    <div className='widget-product-sorting'>
+                    <div className='single-widget-search-input'>
                       <select
                         className='select w-100 custom-select'
                         value={priceFilter}
                         onChange={this.handlePriceFilter}
                       >
-                        <option value={3000}> Under 3000</option>
-                        <option value={20000}> 3000 - 20000</option>
-                        <option value={75001}>Above 20000 </option>
+                        <option value={0}>Low - High</option>
+                        <option value={1}>High - Low</option>
                       </select>
+                      {/* <option value={true}>Low - High</option>
+                        <option value={3500}> Under 3000</option>
+                        <option value={21000}>Low - High</option>
+                        {/* <option value={3500}> Under 3000</option>
+                        <option value={21000}> 3000 - 20000</option>
+                        <option value={76000}>Above 20000 </option>
+                      </select> */}
                       {/* <div className="slider-product-sorting" />
                       <div className="product-range-detail">
                         <label htmlFor="amount">Price: </label>
